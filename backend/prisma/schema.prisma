@@ -1,0 +1,59 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client" // <--- CRITICAL
+}
+
+datasource db {
+  provider = "postgresql"
+  // No URL here! It is in prisma.config.ts now.
+}
+// --- MODELS ---
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  submissions Submission[]
+}
+
+model Problem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String
+  difficulty  String   
+  constraints String?
+  
+  testCases   TestCase[]
+  submissions Submission[]
+}
+
+model TestCase {
+  id        Int     @id @default(autoincrement())
+  input     String
+  output    String
+  problemId Int
+  
+  problem   Problem @relation(fields: [problemId], references: [id])
+}
+
+model Submission {
+  id        Int      @id @default(autoincrement())
+  language  String   
+  code      String
+  status    String   @default("Pending") 
+  output    String?  
+  createdAt DateTime @default(now())
+  
+  userId    Int
+  problemId Int
+
+  user      User     @relation(fields: [userId], references: [id])
+  problem   Problem  @relation(fields: [problemId], references: [id])
+}
