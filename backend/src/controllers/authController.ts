@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../utils/prisma"; // Import our singleton client
+// add this near other imports
+import type { RegisterInput, LoginInput } from "../validators/auth.schema";
 
 // 1. REGISTER USER
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.body as RegisterInput;
 
     // Check if user exists
     const existingUser = await prisma.user.findFirst({
@@ -36,14 +38,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       .status(201)
       .json({ message: "User registered successfully", userId: user.id });
   } catch (error) {
-    res.status(500).json({ error: "Registration failed" });
+    console.error("Register error:",error)
+    res.status(500).json({
+       error: "Registration failed"
+       });
   }
 };
 
 // 2. LOGIN USER
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginInput;
 
     // Find User
     const user = await prisma.user.findUnique({ where: { email } });

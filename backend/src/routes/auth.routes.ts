@@ -3,14 +3,24 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 import { register, login } from "../controllers/authController";
 import "../utils/passport";
+import { validate } from "../middlewares/validate";
+import { registerSchema, loginSchema } from "../validators/auth.schema";
 
 const router = Router();
 
 // POST /api/auth/register
-router.post("/register", register);
+router.post(
+  "/register",
+  validate(registerSchema),
+  register
+);
 
 // POST /api/auth/login
-router.post("/login", login);
+router.post(
+  "/login",
+  validate(loginSchema),
+  login
+);
 
 router.get(
   "/google",
@@ -33,6 +43,5 @@ router.get(
     res.json({ message: "Google Login Successful", token });
   }
 );
-
 
 export default router;
