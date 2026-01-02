@@ -2,13 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes"; // <--- Import the routes
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 
 const app = express();
 const PORT = process.env.PORT || 4444;
-
+app.use(cookieParser());
 app.use(cors());
 app.use(express.json()); // Essential for parsing JSON bodies
 
