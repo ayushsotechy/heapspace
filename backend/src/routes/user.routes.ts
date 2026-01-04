@@ -1,10 +1,10 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { register, login } from "../controllers/authController";
+import { register, login } from "../controllers/userController";
 import "../utils/passport";
 import { validate } from "../middlewares/validate";
-import { registerSchema, loginSchema } from "../validators/auth.schema";
+import { registerSchema, loginSchema } from "../validators/user.schema";
 
 const router = Router();
 
@@ -33,7 +33,10 @@ router.get(
     // Generate JWT for the Google User
     const user = req.user as any;
     const token = jwt.sign(
-      { userId: user.id, isAdmin: user.isAdmin },
+      { 
+        userId: user.id, 
+        role: "user" 
+      },
       process.env.JWT_SECRET || "supersecret",
       { expiresIn: "1d" }
     );

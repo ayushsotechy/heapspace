@@ -2,25 +2,34 @@
 
 generator client {
   provider = "prisma-client-js"
-  
 }
 
 datasource db {
   provider = "postgresql"
-  // No URL here! It is in prisma.config.ts now.
+  // Keep this if you are using prisma.config.ts (Prisma 7 feature)
+  // Otherwise, use: url = env("DATABASE_URL")
 }
+
 // --- MODELS ---
 
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   email     String   @unique
-  password  String?
+  password  String?  // Optional (for Google Auth users)
   googleId  String?  @unique 
-  isAdmin   Boolean  @default(false)
   createdAt DateTime @default(now())
   
   submissions Submission[]
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  problems  Problem[] 
 }
 
 model Problem {
@@ -33,10 +42,14 @@ model Problem {
   
   testCases   TestCase[]
   submissions Submission[]
+
+  // Link to the Admin who created it
+  adminId     Int?     // Optional (in case you seed problems manually)
+  author      Admin?   @relation(fields: [adminId], references: [id])
 }
 
 model TestCase {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   input     String
   output    String
   problemId Int
