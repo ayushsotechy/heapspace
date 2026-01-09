@@ -16,7 +16,7 @@ router.post("/login",    validate(adminLoginSchema),    adminLogin);
 router.post(
   "/problems", 
   verifyAdmin,                 
-  // validate(createProblemSchema), 
+  validate(createProblemSchema), 
   createProblem                
 );
 
