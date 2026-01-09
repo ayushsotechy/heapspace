@@ -4,6 +4,9 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
+import submissionRoutes from "./routes/submission.routes";
+import problemRoutes from "./routes/problem.routes";
+
 dotenv.config();
 
 
@@ -16,6 +19,9 @@ app.use(express.json()); // Essential for parsing JSON bodies
 // Mount the Auth Routes
 app.use("/api/auth", authRoutes); 
 app.use("/api/admin", adminRoutes);
+app.use("/api/problems", problemRoutes);
+app.use("/api/submissions", submissionRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("HeapSpace Backend is Running 🚀");

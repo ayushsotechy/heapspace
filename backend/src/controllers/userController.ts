@@ -56,7 +56,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
    
     const token = jwt.sign(
-      { userId: user.id, role: "user" }, // Added 'role: user' for clarity
+      { id: user.id, role: "user" }, // Added 'role: user' for clarity
       process.env.JWT_SECRET || "secret",
       { expiresIn: "1h" }
     );
