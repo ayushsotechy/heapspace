@@ -52,12 +52,17 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
     }
 
     const token = jwt.sign(
-      { id: admin.id, role: "admin" },
-      process.env.JWT_SECRET || "secret",
-      { expiresIn: "1d" }
+      { id: admin.id, role: "ADMIN" },
+      process.env.JWT_SECRET !,
+      { expiresIn: "7d" }
     );
 
-    res.json({ message: "Welcome Boss", token, username: admin.username });
+    res
+    .cookie("token", token,{
+      httpOnly: true,
+      sameSite:"lax",
+      secure: false})
+    .json({ message: "Welcome Boss", token, username: admin.username });
   } catch (error) {
     console.error("Admin Login Error:", error);
     res.status(500).json({ error: "Login failed" });

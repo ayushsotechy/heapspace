@@ -8,50 +8,64 @@ export interface AuthRequest extends Request {
     role: string;
   };
 }
+export const verifyAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.cookies?.token;
 
-
-export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-     res.status(401).json({ error: "Access Denied: No Token Provided" });
-     return;
+  if (!token) {
+    return res.status(401).json({ message: "please login first" });
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as any;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as { id: number; role: string };
 
-    if (decoded.role !== "admin") {
-       res.status(403).json({ error: "Access Denied: Admins Only" });
-       return;
+    if (decoded.role !== "ADMIN") {
+      return res.status(403).json({ message: "Admins only" });
     }
 
-    (req as AuthRequest).user = decoded;
+    (req as AuthRequest).user = { id: decoded.id, role: decoded.role };
     next();
-  } catch (error) {
-    res.status(400).json({ error: "Invalid Token" });
+  } catch {
+    return res.status(401).json({ message: "invalid token" });
   }
 };
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
 
-    if(!authHeader){
-         res.status(401).json({ error: "Access Denied: No Token Provided" });
-         return;
-    }
-    const token = authHeader.split(" ")[1];
 
-    try{
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as any;
+export const verifyToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.cookies?.token;
 
-        (req as AuthRequest).user = decoded;
-        next();
+  if (!token) {
+    return res.status(401).json({
+      message: "please login first"
+    });
+  }
 
-    }
-    catch(error){
-        res.status(400).json({ error: "Invalid Token" });
-    }
-}
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as { id: number; role?: string };
+
+    (req as AuthRequest).user = {
+      id: decoded.id,
+      role: decoded.role ?? "USER"
+    };
+
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      message: "invalid token"
+    });
+  }
+};

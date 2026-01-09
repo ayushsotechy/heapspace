@@ -4,45 +4,44 @@ import type { CreateProblemInput } from "../validators/problem.schema";
 import { AuthRequest } from "../middlewares/authMiddleware";
 
 
-export const createProblem = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { title, description, slug, difficulty, testCases } = req.body as CreateProblemInput;
-    
+  export const createProblem = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { title, description, slug, difficulty, testCases } = req.body as CreateProblemInput;
 
-    const adminId = (req as AuthRequest).user?.id;
+      const adminId = (req as AuthRequest).user?.id;
 
-    if (!adminId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    const newProblem = await prisma.problem.create({
-      data: {
-        title,
-        description,
-        slug,
-        difficulty,
-        adminId: adminId,
-        testCases: {
-          create: testCases
-        }
-      },
-      include: {
-        testCases: true
+      if (!adminId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
       }
-    });
 
-    res.status(201).json({ message: "Problem created successfully", problem: newProblem });
+      const newProblem = await prisma.problem.create({
+        data: {
+          title,
+          description,
+          slug,
+          difficulty,
+          adminId: adminId,
+          testCases: {
+            create: testCases
+          }
+        },
+        include: {
+          testCases: true
+        }
+      });
 
-  } catch (error: any) {
-    if (error.code === 'P2002') {
-      res.status(400).json({ error: "A problem with this slug already exists" });
-      return;
+      res.status(201).json({ message: "Problem created successfully", problem: newProblem });
+
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        res.status(400).json({ error: "A problem with this slug already exists" });
+        return;
+      }
+      console.error("Create Problem Error:", error);
+      res.status(500).json({ error: "Failed to create problem" });
     }
-    console.error("Create Problem Error:", error);
-    res.status(500).json({ error: "Failed to create problem" });
-  }
-};
+  };
 
 
 export const getProblems = async (req: Request, res: Response): Promise<void> => {
