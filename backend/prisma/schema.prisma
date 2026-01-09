@@ -1,9 +1,10 @@
 // prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client-js"
-  url=env("DATABASE_URL")
+  provider   = "prisma-client"
+  engineType = "client"
 }
+
 
 datasource db {
   provider = "postgresql"
