@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- PREMIUM SCROLLBAR STYLING --- */
+
+/* 1. Set width wide enough to allow for "margins" */
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+/* 2. Track: Completely transparent so the bar looks like it's floating */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 3. Thumb: The actual bar */
+::-webkit-scrollbar-thumb {
+  background-color: #2A2420; /* Dark Roast Brown base */
+  border-radius: 9999px;     /* Fully rounded pill shape */
+  
+  /* THE TRICK: Transparent border matches background to create "margin" */
+  border: 4px solid #0F0A0A; 
+  background-clip: content-box; /* Ensures color stays inside the border */
+  
+  /* Smoothly fade the color change */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 4. Hover State: Coffee Orange Glow */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #F59E0B; /* Amber-500 */
+  border: 4px solid #0F0A0A; /* Maintain the "margin" */
+  
+  /* Soft outer glow + subtle inner highlight */
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); 
+}
+
+
+/* --- UTILITY FIXES --- */
+
+/* Fix for White Input Background on Autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #0C0908 inset !important;
+  -webkit-text-fill-color: #E8DCC4 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Disable Elastic Scroll (Bounce) */
+html, body {
+  overscroll-behavior: none;
+  background-color: #0F0A0A;
+}
