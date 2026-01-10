@@ -37,7 +37,7 @@ export const ProblemSet = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0F0A0A] text-[#E8DCC4] px-6 md:px-10 pb-10 pt-48 relative overflow-hidden">
+    <div className="min-h-screen text-[#E8DCC4] px-6 md:px-10 pb-10 pt-48 relative overflow-hidden">
       <div className="fixed top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0F0A0A] via-[#0F0A0A]/90 to-transparent z-40 pointer-events-none" />
     {/* --- FIX END --- */}
       {/* Subtle Coffee Steam Background */}
