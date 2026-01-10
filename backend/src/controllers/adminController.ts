@@ -62,7 +62,7 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       httpOnly: true,
       sameSite:"lax",
       secure: false})
-    .json({ message: "Welcome Boss", token, username: admin.username });
+    .json({ message: "Welcome Boss", token, username: admin.username,role:"ADMIN" });
   } catch (error) {
     console.error("Admin Login Error:", error);
     res.status(500).json({ error: "Login failed" });
