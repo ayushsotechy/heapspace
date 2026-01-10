@@ -4,6 +4,7 @@ import { Navbar } from "./components/Navbar";
 import { ProblemSet } from "./pages/ProblemSet";
 import { HomePage } from "./pages/HomePage";
 import { AuthPage } from "./pages/AuthPage";
+import { ActivityPage } from "./pages/ActivityPage";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -17,7 +18,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className={`min-h-screen text-white selection:bg-orange-500/30 relative
       ${isHome ? "bg-black" : "bg-[#0F0A0A]"} 
-      ${!isHome && !isAuthPage ? "pt-28" : ""} 
+      ${!isHome && !isAuthPage ? "pt-16" : ""} 
     `}>
       {/* --- NEW: Math Grid Background --- */}
       {/* We hide it on Home Page if you want that to remain pure black, otherwise remove '!isHome' */}
@@ -49,7 +50,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/problems" element={<ProblemSet />} />
-          <Route path="/activity" element={<div className="p-20 text-center">Activity Page (Coming Soon)</div>} />
+          <Route path="/activity" element={<ActivityPage />} />
           <Route path="/contests" element={<div className="p-20 text-center">Contests Page (Coming Soon)</div>} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/signup" element={<AuthPage />} />
