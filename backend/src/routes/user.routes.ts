@@ -5,7 +5,10 @@ import { register, login } from "../controllers/userController";
 import "../utils/passport";
 import { validate } from "../middlewares/validate";
 import { registerSchema, loginSchema } from "../validators/user.schema";
+import { getMe } from "../controllers/userController";
+import { verifyToken } from "../middlewares/authMiddleware";
 
+import { getProblems, getProblem } from "../controllers/problemController";
 const router = Router();
 
 // POST /api/auth/register
@@ -14,7 +17,7 @@ router.post(
   validate(registerSchema),
   register
 );
-
+router.get("/me", verifyToken, getMe);
 // POST /api/auth/login
 router.post(
   "/login",
@@ -33,11 +36,11 @@ router.get(
     // Generate JWT for the Google User
     const user = req.user as any;
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        role: "user" 
+      {
+        userId: user.id,
+        role: "USER"
       },
-      process.env.JWT_SECRET || "supersecret",
+      process.env.JWT_SECRET!,
       { expiresIn: "1d" }
     );
 
@@ -46,5 +49,7 @@ router.get(
     res.json({ message: "Google Login Successful", token });
   }
 );
+
+
 
 export default router;

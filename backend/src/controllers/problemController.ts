@@ -66,11 +66,16 @@ export const getProblem = async (req: Request, res: Response): Promise<void> => 
     const { slug } = req.params;
 
     const problem = await prisma.problem.findUnique({
-      where: { slug },
-      include: {
-        testCases: true // We need these to run code against!
-      }
-    });
+  where: { slug },
+  select: {
+    id: true,
+    title: true,
+    description: true,
+    difficulty: true,
+    constraints: true
+  }
+});
+
 
     if (!problem) {
       res.status(404).json({ error: "Problem not found" });

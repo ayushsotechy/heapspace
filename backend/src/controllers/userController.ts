@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../utils/prisma";
 import type { RegisterInput, LoginInput } from "../validators/user.schema";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 // 1. REGISTER USER
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -56,7 +57,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
    
     const token = jwt.sign(
-      { id: user.id, role: "user" }, // Added 'role: user' for clarity
+      { id: user.id, role: "USER" }, // Added 'role: user' for clarity
       process.env.JWT_SECRET || "secret",
       { expiresIn: "1h" }
     );
@@ -70,11 +71,51 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     .json({ 
       message: "Login successful",
       token, 
-      username: user.username 
+      username: user.username,
+      role:"USER" 
     });
 
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
   }
+};
+
+
+export const getMe = async (req: Request, res: Response) => {
+  const authUser = (req as any).user;
+
+  if (!authUser) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  // If admin
+  if (authUser.role === "ADMIN") {
+    const admin = await prisma.admin.findUnique({
+      where: { id: authUser.id },
+      select: {
+        id: true,
+        username: true,
+        email: true
+      }
+    });
+
+    return res.json({
+      user: { ...admin, role: "ADMIN" }
+    });
+  }
+
+  // Normal user
+  const user = await prisma.user.findUnique({
+    where: { id: authUser.id },
+    select: {
+      id: true,
+      username: true,
+      email: true
+    }
+  });
+
+  return res.json({
+    user: { ...user, role: "USER" }
+  });
 };
