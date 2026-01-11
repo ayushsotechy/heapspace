@@ -72,7 +72,7 @@ export const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#0F0A0A]">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       
       {/* Background Effects */}
       <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none brightness-100 contrast-150"></div>

@@ -15,7 +15,7 @@ import {
 
 export const ActivityPage = () => {
   return (
-    <div className="min-h-screen bg-[#0F0A0A] text-[#E8DCC4] p-6 pt-32 pb-20 relative overflow-hidden">
+    <div className="min-h-screen text-[#E8DCC4] p-6 pt-32 pb-20 relative overflow-hidden">
       
       {/* Background Decor */}
       <div className="fixed top-20 right-0 w-[500px] h-[500px] bg-amber-900/10 blur-[150px] pointer-events-none" />
