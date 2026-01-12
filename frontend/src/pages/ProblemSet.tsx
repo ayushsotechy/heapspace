@@ -13,12 +13,9 @@ interface Problem {
 
 export const ProblemSet = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [searchQuery, setSearchQuery] = useState(""); 
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-  const [searchQuery, setSearchQuery] = useState("");
-=======
   const navigate = useNavigate();
->>>>>>> fc60e7714568fb4651890f5b977594c82dcf5bfb
 
   useEffect(() => {
     const fetchProblems = async () => {
@@ -26,16 +23,8 @@ export const ProblemSet = () => {
         const response = await axios.get("http://localhost:4444/api/problems");
         if (Array.isArray(response.data)) setProblems(response.data);
         else if (response.data.problems) setProblems(response.data.problems);
-<<<<<<< HEAD
-      } catch (error) { 
-        console.error("Failed to fetch problems:", error); 
-      } finally { 
-        setLoading(false); 
-      }
-=======
       } catch (error) { console.error(error); }
       finally { setLoading(false); }
->>>>>>> fc60e7714568fb4651890f5b977594c82dcf5bfb
     };
     fetchProblems();
   }, []);
@@ -54,13 +43,7 @@ export const ProblemSet = () => {
 
   return (
     <div className="min-h-screen text-[#E8DCC4] px-6 md:px-10 pb-10 pt-48 relative overflow-hidden">
-      {/* Background Overlays */}
       <div className="fixed top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0F0A0A] via-[#0F0A0A]/90 to-transparent z-40 pointer-events-none" />
-<<<<<<< HEAD
-=======
-      {/* --- FIX END --- */}
-      {/* Subtle Coffee Steam Background */}
->>>>>>> fc60e7714568fb4651890f5b977594c82dcf5bfb
       <div className="fixed top-0 left-1/4 w-[400px] h-[600px] bg-orange-950/10 blur-[150px] pointer-events-none" />
 
       <div className="relative max-w-6xl mx-auto">
@@ -72,29 +55,14 @@ export const ProblemSet = () => {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto">
-<<<<<<< HEAD
-             <div className="relative group w-full md:w-80">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#5C544E] group-focus-within:text-amber-500">
-                  <Search size={18} />
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Search challenges..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#1A1512] border border-[#2A2420] rounded-xl py-3 pl-10 pr-4 text-sm text-[#E8DCC4] placeholder:text-[#5C544E] outline-none focus:outline-none ring-0 focus:ring-0 focus:border-amber-500/60 focus:bg-[#221C18] transition-all duration-200"
-                />
-             </div>
-             <button className="p-3 bg-[#1A1512] border border-[#2A2420] rounded-xl hover:border-amber-500/30 hover:text-amber-500 transition-colors">
-               <Filter size={18} />
-             </button>
-=======
             <div className="relative group w-full md:w-80">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#5C544E] group-focus-within:text-amber-500">
                 <Search size={18} />
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search challenges..."
                 className="w-full bg-[#1A1512] border border-[#2A2420] rounded-xl py-3 pl-10 pr-4 text-sm text-[#E8DCC4] focus:outline-none focus:border-amber-500/40 focus:bg-[#221C18] transition-all placeholder:text-[#5C544E]"
               />
@@ -102,7 +70,6 @@ export const ProblemSet = () => {
             <button className="p-3 bg-[#1A1512] border border-[#2A2420] rounded-xl hover:border-amber-500/30 hover:text-amber-500 transition-colors">
               <Filter size={18} />
             </button>
->>>>>>> fc60e7714568fb4651890f5b977594c82dcf5bfb
           </div>
         </div>
 
@@ -116,87 +83,54 @@ export const ProblemSet = () => {
           </div>
 
           {loading ? (
-<<<<<<< HEAD
-             <div className="mt-8 space-y-4">
-               {[...Array(5)].map((_, i) => (
-                 <div key={i} className="h-16 bg-[#1A1512] rounded-xl animate-pulse" />
-               ))}
-             </div>
-          ) : (
-            // FIX 1: Removed 'layout' prop from this container to stop parent scaling
-            <div className="space-y-3 mt-4">
-              <AnimatePresence mode="popLayout">
-                {filteredProblems.length > 0 ? (
-                  filteredProblems.map((problem) => (
-                    <motion.div 
-                      key={problem.id}
-                      // FIX 2: layout="position" ensures items SLIDE instead of STRETCH
-                      layout="position"
-                      
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      // FIX 3: Removed 'scale' from exit to stop the shrinking distortion
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      
-                      className="group grid grid-cols-12 items-center p-5 rounded-xl border border-[#1F1915] bg-[#161210] hover:bg-[#1C1815] hover:border-amber-900/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
-                    >
-                      <div className="col-span-1 font-mono text-[#5C544E] group-hover:text-amber-600">
-                        {problem.id}
-                      </div>
-                      <div className="col-span-6 font-medium text-lg text-[#D6CFC7] group-hover:text-white transition-colors">
-                        {problem.title}
-                      </div>
-                      <div className="col-span-3">
-                        <DifficultyBadge level={problem.difficulty} />
-                      </div>
-                      <div className="col-span-2 flex justify-end">
-                        <ArrowRight className="text-[#4A4440] group-hover:text-amber-500 group-hover:translate-x-1 transition-all" size={20} />
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <motion.div 
-                    key="empty-state"
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }}
-                    className="py-12 text-center"
-                  >
-                    <p className="text-[#5C544E] text-lg font-medium">No brews found.</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-=======
             <div className="mt-8 space-y-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="h-16 bg-[#1A1512] rounded-xl animate-pulse" />
               ))}
             </div>
           ) : (
-            <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-3 mt-4">
-              {problems.map((problem, index) => (
-                <motion.div
-                  key={problem.id}
-                  variants={itemVariants}
-                  onClick={() => navigate(`/problems/${problem.slug}`)}
-                  className="group grid grid-cols-12 items-center p-5 rounded-xl border border-[#1F1915] bg-[#161210] hover:bg-[#1C1815] hover:border-amber-900/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
-                >
-                  <div className="col-span-1 font-mono text-[#5C544E] group-hover:text-amber-600">{index + 1}</div>
-                  <div className="col-span-6 font-medium text-lg text-[#D6CFC7] group-hover:text-white transition-colors">
-                    {problem.title}
-                  </div>
-                  <div className="col-span-3">
-                    <DifficultyBadge level={problem.difficulty} />
-                  </div>
-                  <div className="col-span-2 flex justify-end">
-                    <ArrowRight className="text-[#4A4440] group-hover:text-amber-500 group-hover:translate-x-1 transition-all" size={20} />
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
->>>>>>> fc60e7714568fb4651890f5b977594c82dcf5bfb
+            <div className="space-y-3 mt-4">
+              {/* --- FIX: Using AnimatePresence + layout instead of key re-renders --- */}
+             <AnimatePresence mode="popLayout">
+  {filteredProblems.map((problem) => ( // You don't even need 'index' anymore
+    <motion.div
+      layout
+      key={problem.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      onClick={() => navigate(`/problems/${problem.slug}`)}
+      className="group grid grid-cols-12 items-center p-5 rounded-xl border border-[#1F1915] bg-[#161210] hover:bg-[#1C1815] hover:border-amber-900/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+    >
+      {/* --- FIX: Changed {index + 1} to {problem.id} --- */}
+      <div className="col-span-1 font-mono text-[#5C544E] group-hover:text-amber-600">
+        {problem.id} 
+      </div>
+      
+      <div className="col-span-6 font-medium text-lg text-[#D6CFC7] group-hover:text-white transition-colors">
+        {problem.title}
+      </div>
+      <div className="col-span-3">
+        <DifficultyBadge level={problem.difficulty} />
+      </div>
+      <div className="col-span-2 flex justify-end">
+        <ArrowRight className="text-[#4A4440] group-hover:text-amber-500 group-hover:translate-x-1 transition-all" size={20} />
+      </div>
+    </motion.div>
+  ))}
+</AnimatePresence>
+              
+              {filteredProblems.length === 0 && (
+                 <motion.div 
+                   initial={{ opacity: 0 }} 
+                   animate={{ opacity: 1 }} 
+                   className="text-center py-10 text-[#5C544E]"
+                 >
+                   No problems found matching "{searchQuery}"
+                 </motion.div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -204,7 +138,7 @@ export const ProblemSet = () => {
   );
 };
 
-// Badges (Unchanged)
+// Badges
 const DifficultyBadge = ({ level }: { level: string }) => {
   const styles = {
     Easy: "bg-emerald-900/10 text-emerald-400 border-emerald-900/20", 

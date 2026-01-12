@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import axios from "axios"; // 👈 New Import
+import axios from "axios"; 
 import { prisma } from "../utils/prisma";
-import { AuthRequest } from "../middlewares/authMiddleware";
+// import { AuthRequest } from "../middlewares/authMiddleware"; // <--- Not needed anymore
 import { z } from "zod";
 
 const submissionSchema = z.object({
@@ -10,7 +10,6 @@ const submissionSchema = z.object({
   code: z.string().min(1, "Code cannot be empty"),
 });
 
-// Helper to map your languages to Piston's API format
 const LANGUAGE_MAP: Record<string, { language: string; version: string }> = {
   cpp: { language: "c++", version: "10.2.0" },
   python: { language: "python", version: "3.10.0" },
@@ -27,21 +26,20 @@ export const submitCode = async (req: Request, res: Response): Promise<void> => 
     }
 
     const { problemId, language, code } = validation.data;
-    const userId = (req as AuthRequest).user?.id;
+    
+    // --- UPDATED: BYPASS AUTH ---
+    // Since we aren't using verifyToken, we hardcode ID to 1 (or any existing user ID)
+    const userId = 1; 
+    // ----------------------------
 
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
-
-    // 1. Check if language is supported
+    // 1. Check language
     const pistonConfig = LANGUAGE_MAP[language];
     if (!pistonConfig) {
       res.status(400).json({ error: "Unsupported language" });
       return;
     }
 
-    // 2. Fetch the Problem AND its Test Cases
+    // 2. Fetch Problem
     const problem = await prisma.problem.findUnique({
       where: { id: problemId },
       include: { testCases: true },
@@ -52,10 +50,10 @@ export const submitCode = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // 3. Create "Pending" Submission first (so we have a record)
+    // 3. Create "Pending" Submission
     const submission = await prisma.submission.create({
       data: {
-        userId,
+        userId, // Uses the hardcoded ID
         problemId,
         language,
         code,
@@ -63,41 +61,41 @@ export const submitCode = async (req: Request, res: Response): Promise<void> => 
       },
     });
 
-    // 4. THE JUDGE LOGIC 
-    // We will assume it's Accepted, until we find a failing test case
+    // 4. JUDGE LOGIC
     let finalStatus = "Accepted"; 
 
-    // Loop through all test cases
     for (const testCase of problem.testCases) {
       try {
-        // Call Piston API
         const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
           language: pistonConfig.language,
           version: pistonConfig.version,
           files: [{ content: code }],
-          stdin: testCase.input, // Pass test case input here
+          stdin: testCase.input, 
         });
 
-        const output = response.data.run.output?.trim(); // Clean up whitespace
+        const { stdout, stderr, code: exitCode } = response.data.run;
+
+        if (exitCode !== 0) {
+            console.log(`Runtime Error for TC ${testCase.id}:`, stderr);
+            finalStatus = "Runtime Error";
+            break; 
+        }
+
+        const actualOutput = stdout.trim();
         const expectedOutput = testCase.output.trim();
 
-        // Debugging: Print to console so you can see what's happening
-        console.log(`Test Case ID: ${testCase.id}`);
-        console.log(`Expected: ${expectedOutput}`);
-        console.log(`Actual:   ${output}`);
-
-        if (output !== expectedOutput) {
+        if (actualOutput !== expectedOutput) {
           finalStatus = "Wrong Answer";
-          break; // Stop checking after first failure
+          break; 
         }
       } catch (error) {
-        console.error("Execution Error:", error);
+        console.error("Piston API Error:", error);
         finalStatus = "Runtime Error";
         break;
       }
     }
 
-    // 5. Update the Submission Status in DB
+    // 5. Update Status
     const updatedSubmission = await prisma.submission.update({
       where: { id: submission.id },
       data: { status: finalStatus },
@@ -115,15 +113,17 @@ export const submitCode = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-// ... keep your getMySubmissions function below ...
 export const getMySubmissions = async (req: Request, res: Response): Promise<void> => {
     try {
-        const userId = (req as AuthRequest).user?.id;
+        // --- UPDATED: BYPASS AUTH ---
+        const userId = 1; 
+        // ----------------------------
+
         const submissions = await prisma.submission.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
             include: { problem: { select: { title: true, slug: true } } }
-        });
+        }); 
         res.json({ submissions });
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch submissions" });

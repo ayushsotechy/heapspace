@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/authMiddleware";
+// import { verifyToken } from "../middlewares/authMiddleware"; // <--- REMOVED
 import { submitCode, getMySubmissions } from "../controllers/submissionController";
 
 const router = Router();
 
-// POST /api/submissions/submit
-router.post("/", verifyToken, submitCode);
+// POST /api/submissions (No Auth)
+router.post("/", submitCode);
 
-// GET /api/submissions/mine
-router.get("/my", verifyToken, getMySubmissions);
+// GET /api/submissions/my (No Auth)
+router.get("/my", getMySubmissions);
 
 export default router;

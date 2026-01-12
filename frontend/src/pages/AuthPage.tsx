@@ -239,10 +239,10 @@ const InputField = ({ icon: Icon, ...props }: any) => {
                 className="w-full bg-[#0C0908] border border-[#2A2420] text-[#E8DCC4] text-sm rounded-xl py-3.5 pl-11 pr-10 
                 placeholder:text-[#4A4440] placeholder:font-medium
                 
-                /* FIX: Strictly remove default browser outline & ring */
+                
                 outline-none focus:outline-none ring-0 focus:ring-0
                 
-                /* Custom Focus State: Coffee Outline Only */
+                
                 focus:border-amber-600 focus:bg-[#120E0D]
                 
                 hover:border-[#3E3630] transition-all duration-200"

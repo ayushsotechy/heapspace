@@ -72,7 +72,8 @@ export const getProblem = async (req: Request, res: Response): Promise<void> => 
     title: true,
     description: true,
     difficulty: true,
-    constraints: true
+    constraints: true,
+    testCases: true
   }
 });
 

@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
 import submissionRoutes from "./routes/submission.routes";
 import problemRoutes from "./routes/problem.routes";
+import executeRoutes from "./routes/execute.routes"
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
+app.use("/api/execute", executeRoutes);
 
 
 app.get("/", (req, res) => {
