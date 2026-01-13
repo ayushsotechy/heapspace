@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "framer-motion";
-import { Code2, Terminal, Trophy, Activity, LogOut, User } from "lucide-react";
+import { Code2, Terminal, Trophy, Activity, LogOut} from "lucide-react";
 
 export const Navbar = () => {
   const { scrollY } = useScroll();
