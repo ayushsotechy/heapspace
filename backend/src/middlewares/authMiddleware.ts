@@ -50,6 +50,8 @@ export const verifyToken = async (
       message: "please login first"
     });
   }
+  console.log("🔍 [AuthMiddleware] Cookies received:", req.cookies);
+    console.log("🔍 [AuthMiddleware] Token found:", token ? "YES" : "NO");
 
   try {
     const decoded = jwt.verify(

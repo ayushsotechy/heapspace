@@ -119,3 +119,104 @@ export const getMe = async (req: Request, res: Response) => {
     user: { ...user, role: "USER" }
   });
 };
+
+export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authReq = req as AuthRequest;
+
+    // 1. DYNAMIC CHECK: Get ID from the logged-in user's token
+    if (!authReq.user) {
+        res.status(401).json({ error: "Unauthorized: User ID not found" });
+        return; 
+    }
+
+    const userId = authReq.user.id; // <--- DYNAMIC ID (No more hardcoding!)
+
+    // 2. Get User Details
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { username: true, email: true, createdAt: true }
+    });
+
+    if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+    }
+
+    // 3. Get Solved Problems (Accepted & Distinct)
+    const solvedSubmissions = await prisma.submission.findMany({
+      where: { userId, status: "Accepted" },
+      distinct: ["problemId"],
+      include: {
+        problem: { select: { difficulty: true } },
+      },
+    });
+
+    // 4. Calculate Stats
+    const solvedStats = {
+      easy: solvedSubmissions.filter((s) => s.problem.difficulty === "Easy").length,
+      medium: solvedSubmissions.filter((s) => s.problem.difficulty === "Medium").length,
+      hard: solvedSubmissions.filter((s) => s.problem.difficulty === "Hard").length,
+      total: solvedSubmissions.length,
+    };
+
+    const totalProblemsGrouped = await prisma.problem.groupBy({
+        by: ['difficulty'],
+        _count: true
+    });
+
+    const totalProblemsStats = totalProblemsGrouped.reduce((acc, curr) => {
+        acc[curr.difficulty.toLowerCase()] = curr._count;
+        return acc;
+    }, { easy: 0, medium: 0, hard: 0 } as Record<string, number>);
+
+    // 5. Language Stats
+    const languageStats = await prisma.submission.groupBy({
+      by: ["language"],
+      where: { userId },
+      _count: true,
+    });
+
+    // 6. Heatmap Data
+    const allSubmissions = await prisma.submission.findMany({
+      where: { userId },
+      select: { createdAt: true },
+    });
+
+    const heatmap: Record<string, number> = {};
+    allSubmissions.forEach((sub) => {
+      const date = sub.createdAt.toISOString().split("T")[0];
+      heatmap[date] = (heatmap[date] || 0) + 1;
+    });
+
+    // 7. Dynamic Ranking
+    const leaderboard = await prisma.submission.groupBy({
+      by: ['userId'],
+      where: { status: "Accepted" },
+      _count: { problemId: true }
+    });
+
+    const sortedLeaderboard = leaderboard
+      .map(u => ({ userId: u.userId, solved: u._count.problemId }))
+      .sort((a, b) => b.solved - a.solved);
+
+    const myRankIndex = sortedLeaderboard.findIndex(u => u.userId === userId);
+    const realRank = myRankIndex === -1 ? sortedLeaderboard.length + 1 : myRankIndex + 1;
+    const totalUsers = await prisma.user.count();
+
+    res.json({
+      user,
+      solvedStats,
+      totalProblemsStats,
+      languageStats,
+      heatmap,
+      totalSubmissions: allSubmissions.length,
+      realRank,
+      totalUsers,
+    });
+
+  } catch (error) {
+    console.error("Profile Error:", error);
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+};

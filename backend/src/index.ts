@@ -13,6 +13,7 @@ import adminRoutes from "./routes/admin.routes";
 import submissionRoutes from "./routes/submission.routes";
 import problemRoutes from "./routes/problem.routes";
 import executeRoutes from "./routes/execute.routes"
+// import userRoutes from "./routes/user.routes";
 
 dotenv.config();
 
@@ -54,11 +55,7 @@ app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
 
 app.use("/api/execute", executeRoutes);
-app.get("/metrics", async (_req, res) => {
-  res.setHeader("Content-Type", register.contentType);
-  res.end(await register.metrics());
-});
-
+app.use("/api/users", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("HeapSpace Backend is Running 🚀");

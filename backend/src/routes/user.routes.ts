@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { register, login } from "../controllers/userController";
+import { register, login, getUserProfile } from "../controllers/userController";
 import "../utils/passport";
 import { validate } from "../middlewares/validate";
 import { registerSchema, loginSchema } from "../validators/user.schema";
@@ -49,7 +49,7 @@ router.get(
     res.json({ message: "Google Login Successful", token });
   }
 );
-
+router.get("/profile", verifyToken, getUserProfile);
 
 
 export default router;
