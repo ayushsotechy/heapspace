@@ -1,5 +1,9 @@
 import "dotenv/config";
-
+import {
+  register,
+  httpRequestCounter,
+  httpRequestDuration
+} from "./metrics";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -23,6 +27,24 @@ app.use(
 app.use(cookieParser());
 app.use(express.json()); // Essential for parsing JSON bodies
 
+app.use((req, res, next) => {
+  const end = httpRequestDuration.startTimer({
+    method: req.method,
+    route: req.path
+  });
+
+  res.on("finish", () => {
+    httpRequestCounter.inc({
+      method: req.method,
+      route: req.route?.path || req.path,
+      status: res.statusCode
+    });
+
+    end();
+  });
+
+  next();
+});
 
 
 // Mount the Auth Routes
@@ -30,7 +52,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
+
 app.use("/api/execute", executeRoutes);
+app.get("/metrics", async (_req, res) => {
+  res.setHeader("Content-Type", register.contentType);
+  res.end(await register.metrics());
+});
 
 
 app.get("/", (req, res) => {
