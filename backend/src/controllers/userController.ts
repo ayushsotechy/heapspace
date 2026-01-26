@@ -55,13 +55,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-   
     const token = jwt.sign(
-      { id: user.id, role: "USER" }, // Added 'role: user' for clarity
+      { id: user.id, role: "USER" }, 
       process.env.JWT_SECRET || "secret",
       { expiresIn: "1h" }
     );
-
 
     res
     .cookie("token", token,{
@@ -81,7 +79,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-
+// 3. GET ME (Auth Check)
 export const getMe = async (req: Request, res: Response) => {
   const authUser = (req as any).user;
 
@@ -120,6 +118,7 @@ export const getMe = async (req: Request, res: Response) => {
   });
 };
 
+// 4. GET USER PROFILE (Activity Page)
 export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const authReq = req as AuthRequest;
@@ -130,7 +129,16 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
         return; 
     }
 
-    const userId = authReq.user.id; // <--- DYNAMIC ID (No more hardcoding!)
+    const userId = authReq.user.id; 
+    
+    // --- DEBUG LOGS (Watch your terminal) ---
+    console.log("🔍 Fetching profile for User ID:", userId);
+    const debugSubs = await prisma.submission.findMany({ where: { userId } });
+    console.log(`🔍 Found ${debugSubs.length} total submissions for this user.`);
+    if (debugSubs.length > 0) {
+        console.log(`🔍 First submission status in DB: "${debugSubs[0].status}"`);
+    }
+    // ----------------------------------------
 
     // 2. Get User Details
     const user = await prisma.user.findUnique({
@@ -144,19 +152,26 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     }
 
     // 3. Get Solved Problems (Accepted & Distinct)
+    // FIX: Added mode: 'insensitive' to match "Accepted", "accepted", "ACCEPTED"
     const solvedSubmissions = await prisma.submission.findMany({
-      where: { userId, status: "Accepted" },
+      where: { 
+        userId, 
+        status: { equals: "Accepted", mode: "insensitive" } 
+      },
       distinct: ["problemId"],
       include: {
         problem: { select: { difficulty: true } },
       },
     });
+    
+    console.log("🔍 Solved Count returning:", solvedSubmissions.length); 
 
     // 4. Calculate Stats
+    // FIX: Added ?. safety checks in case problem is null
     const solvedStats = {
-      easy: solvedSubmissions.filter((s) => s.problem.difficulty === "Easy").length,
-      medium: solvedSubmissions.filter((s) => s.problem.difficulty === "Medium").length,
-      hard: solvedSubmissions.filter((s) => s.problem.difficulty === "Hard").length,
+      easy: solvedSubmissions.filter((s) => s.problem?.difficulty === "Easy").length,
+      medium: solvedSubmissions.filter((s) => s.problem?.difficulty === "Medium").length,
+      hard: solvedSubmissions.filter((s) => s.problem?.difficulty === "Hard").length,
       total: solvedSubmissions.length,
     };
 
@@ -166,7 +181,10 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     });
 
     const totalProblemsStats = totalProblemsGrouped.reduce((acc, curr) => {
-        acc[curr.difficulty.toLowerCase()] = curr._count;
+        // Ensure difficulty exists before lowercasing
+        if (curr.difficulty) {
+            acc[curr.difficulty.toLowerCase()] = curr._count;
+        }
         return acc;
     }, { easy: 0, medium: 0, hard: 0 } as Record<string, number>);
 
@@ -192,7 +210,7 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
     // 7. Dynamic Ranking
     const leaderboard = await prisma.submission.groupBy({
       by: ['userId'],
-      where: { status: "Accepted" },
+      where: { status: { equals: "Accepted", mode: "insensitive" } },
       _count: { problemId: true }
     });
 

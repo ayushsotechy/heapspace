@@ -46,7 +46,9 @@ export const AuthPage = () => {
         ? { email: formData.email, password: formData.password }
         : { username: formData.username, email: formData.email, password: formData.password };
 
-      const { data } = await axios.post(endpoint, payload);
+      const { data } = await axios.post(endpoint, payload, {
+        withCredentials: true,
+      });
       
       console.log("Auth Response:", data);
       

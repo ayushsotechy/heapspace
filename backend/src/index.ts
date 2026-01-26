@@ -13,6 +13,7 @@ import adminRoutes from "./routes/admin.routes";
 import submissionRoutes from "./routes/submission.routes";
 import problemRoutes from "./routes/problem.routes";
 import executeRoutes from "./routes/execute.routes"
+
 // import userRoutes from "./routes/user.routes";
 
 dotenv.config();
@@ -22,7 +23,8 @@ const PORT = process.env.PORT || 4444;
 app.use(
   cors({
     origin: "http://localhost:5173",
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"]
   })
 );
 app.use(cookieParser());
