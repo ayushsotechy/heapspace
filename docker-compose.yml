@@ -22,4 +22,17 @@ services:
       - "3000:3000"
     volumes:
       - ./metrics/grafana/provisioning:/etc/grafana/provisioning
+  
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:4444
+    depends_on:
+      - backend
 

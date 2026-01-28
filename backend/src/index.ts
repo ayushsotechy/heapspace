@@ -62,6 +62,14 @@ app.use("/api/users", authRoutes);
 app.get("/", (req, res) => {
   res.send("HeapSpace Backend is Running 🚀");
 });
+app.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", register.contentType);
+    res.end(await register.metrics());
+  } catch (err) {
+    res.status(500).end(err);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT} 🚀`);
